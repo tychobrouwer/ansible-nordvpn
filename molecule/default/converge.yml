@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+
+  roles:
+    - role: ansible-nordvpn
+      nordvpn_username: test
+      nordvpn_password: test
+      nordvpn_server: us10036.nordvpn.com.udp1194
