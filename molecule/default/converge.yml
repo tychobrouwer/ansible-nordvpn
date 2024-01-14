@@ -7,3 +7,4 @@
       nordvpn_username: test
       nordvpn_password: test
       nordvpn_server: us10036.nordvpn.com.udp1194
+      nordvpn_no_redirect_gateway: true
