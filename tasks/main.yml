@@ -1,5 +1,10 @@
 ---
 # tasks file for nordvpn
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_os_family == 'Debian'
+
 - name: Ensure openvpn is installed
   ansible.builtin.package:
     name:
@@ -9,7 +14,7 @@
 - name: Ensure NordVPN auth file is present on remote
   ansible.builtin.copy:
     dest: /etc/openvpn/pass
-    content: "{{ role_nordvpn_username }}\n{{ role_nordvpn_password }}\n"
+    content: "{{ nordvpn_username }}\n{{ nordvpn_password }}\n"
     mode: "0600"
     owner: root
     group: root
@@ -18,10 +23,38 @@
 - name: Ensure NordVPN connection file is present on remote
   ansible.builtin.get_url:
     url: https://downloads.nordcdn.com/configs/files/ovpn_legacy/servers/{{ nordvpn_server }}.ovpn
-    dest: /etc/openvpn/client.conf
+    dest: /root/client.conf
     mode: "0644"
     owner: root
     group: root
+  register: nordvpn_connection_file
+
+- name: Ensure NordVPN connection file is present on remote
+  ansible.builtin.copy:
+    src: /root/client.conf
+    dest: /etc/openvpn/client.conf
+    remote_src: true
+    force: "{{ nordvpn_connection_file.changed }}"
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart openvpn
+
+- name: Set no_redirect_gateway
+  ansible.builtin.lineinfile:
+    path: /etc/openvpn/client.conf
+    line: pull-filter ignore redirect-gateway
+    regexp: '^pull-filter ignore redirect-gateway'
+    insertafter: '^verify-x509-name.*\n'
+    state: "{{ nordvpn_no_redirect_gateway and 'present' or 'absent' }}"
+  notify: Restart openvpn
+
+- name: Set pull-filter in config
+  ansible.builtin.lineinfile:
+    path: /etc/openvpn/client.conf
+    line: pull-filter ignore redirect-gateway
+    regexp: '^pull-filter ignore redirect-gateway'
+  when: nordvpn_no_redirect_gateway
   notify: Restart openvpn
 
 - name: Ensure openvpn config is present on remote

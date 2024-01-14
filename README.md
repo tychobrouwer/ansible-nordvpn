@@ -8,9 +8,9 @@ Role Variables
 
 The ```nordvpn_username``` needs to be set to your NordVPN service username and ```nordvpn_password``` needs to be set to your NordVPN service password.
 
-The ```nordvpn_server``` variable can be set to the NordVPN server you want to connect to. A list of servers can be found here:
+The ```nordvpn_server``` variable can be set to the NordVPN server you want to connect to. A list of servers can be found at <https://nordvpn.com/ovpn/>
 
-<https://nordvpn.com/ovpn/>
+```nordvpn_no_redirect_gateway``` can be set to ```false``` if you want to redirect all traffic through the VPN.
 
 Example Playbook
 ----------------
@@ -18,8 +18,10 @@ Example Playbook
 ```yaml
     - hosts: servers
       roles:
-         - { role: nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
-             nordvpn_server: us10036.nordvpn.com.udp1194 }
+        - { role: nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
+            nordvpn_server: us10036.nordvpn.com.udp1194 }
+        - { role: nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
+            nordvpn_server: us10036.nordvpn.com.udp1194, nordvpn_no_redirect_gateway: true }
 ```
 
 License
