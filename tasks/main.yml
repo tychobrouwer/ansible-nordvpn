@@ -72,3 +72,4 @@
     name: openvpn@client
     state: started
     enabled: true
+  when: nordvpn_is_test == false or nordvpn_is_test is undefined

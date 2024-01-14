@@ -5,3 +5,4 @@
     name: openvpn@client
     state: restarted
     enabled: true
+  when: nordvpn_is_test == false or nordvpn_is_test is undefined
