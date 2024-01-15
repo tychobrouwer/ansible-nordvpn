@@ -18,9 +18,9 @@ Example Playbook
 ```yaml
     - hosts: servers
       roles:
-        - { role: nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
+        - { role: tychobrouwer.nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
             nordvpn_server: us10036.nordvpn.com.udp1194 }
-        - { role: nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
+        - { role: tychobrouwer.nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
             nordvpn_server: us10036.nordvpn.com.udp1194, nordvpn_no_redirect_gateway: true }
 ```
 
