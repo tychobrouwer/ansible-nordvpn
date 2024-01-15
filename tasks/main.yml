@@ -45,8 +45,8 @@
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: pull-filter ignore redirect-gateway
-    regexp: '^pull-filter ignore redirect-gateway'
-    insertafter: '^verify-x509-name.*\n'
+    regexp: ^pull-filter ignore redirect-gateway
+    insertafter: ^verify-x509-name.*\n
     state: "{{ nordvpn_no_redirect_gateway and 'present' or 'absent' }}"
   notify: Restart openvpn
 
@@ -54,7 +54,7 @@
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: pull-filter ignore redirect-gateway
-    regexp: '^pull-filter ignore redirect-gateway'
+    regexp: ^pull-filter ignore redirect-gateway
   when: nordvpn_no_redirect_gateway
   notify: Restart openvpn
 
@@ -72,4 +72,4 @@
     name: openvpn@client
     state: started
     enabled: true
-  when: nordvpn_is_test == false or nordvpn_is_test is undefined
+  when: not nordvpn_is_test or nordvpn_is_test is undefined
