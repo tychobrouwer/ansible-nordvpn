@@ -41,21 +41,49 @@
     group: root
   notify: Restart openvpn
 
+- name: Get additional address ips
+  ansible.builtin.uri:
+    url: "{{ item }}"
+    return_content: true
+  register: additional_address_ips
+  with_items: "{{ nordvpn_additional_route_addresses }}"
+
+- name: Test additional address ips
+  ansible.builtin.template:
+    src: additional_routes.j2
+    dest: /root/additional_routes
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Get additional route ips
+  ansible.builtin.slurp:
+    src: /root/additional_routes
+  register: additional_routes
+
+- name: Set additional routes
+  ansible.builtin.blockinfile:
+    path: /etc/openvpn/client.conf
+    insertafter: route-nopull
+    block: "{{ additional_routes.content | b64decode }}"
+    prepend_newline: true
+
 - name: Set no_redirect_gateway
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: pull-filter ignore redirect-gateway
     regexp: ^pull-filter ignore redirect-gateway
     insertafter: ^verify-x509-name.*\n
-    state: "{{ nordvpn_no_redirect_gateway and 'present' or 'absent' }}"
+    state: "{{ nordvpn_ignore_redirect_gateway and 'present' or 'absent' }}"
   notify: Restart openvpn
 
-- name: Set pull-filter in config
+- name: Set nordvpn_route_nopull
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
-    line: pull-filter ignore redirect-gateway
-    regexp: ^pull-filter ignore redirect-gateway
-  when: nordvpn_no_redirect_gateway
+    line: route-nopull
+    regexp: ^route-nopull
+    insertafter: ^verify-x509-name.*\n
+    state: "{{ nordvpn_route_nopull and 'present' or 'absent' }}"
   notify: Restart openvpn
 
 - name: Ensure openvpn config is present on remote

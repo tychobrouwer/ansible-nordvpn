@@ -1,0 +1,8 @@
+{% for route in additional_address_ips.results %}
+{% for route_ip in route.json.records.A %}
+route {{ route_ip.address }} 255.255.255.255 vpn_gateway
+{% endfor %}
+{% endfor %}
+{% for ip in nordvpn_additional_route_ips %}
+route {{ ip }} 255.255.255.255 vpn_gateway
+{% endfor %}
