@@ -48,24 +48,20 @@
   register: additional_address_ips
   with_items: "{{ nordvpn_additional_route_addresses }}"
 
-- name: Test additional address ips
-  ansible.builtin.template:
-    src: additional_routes.j2
-    dest: /root/additional_routes
-    mode: "0755"
-    owner: root
-    group: root
-
-- name: Get additional route ips
-  ansible.builtin.slurp:
-    src: /root/additional_routes
-  register: additional_routes
-
 - name: Set additional routes
   ansible.builtin.blockinfile:
     path: /etc/openvpn/client.conf
-    insertafter: route-nopull
-    block: "{{ additional_routes.content | b64decode }}"
+    insertafter: ^verify-x509-name.*\n
+    block: |
+      {% for route in additional_address_ips.results %}
+      {% for route_ip in route.json.records.A %}
+      route {{ route_ip.address }} 255.255.255.255 vpn_gateway
+      {% endfor %}
+      {% endfor %}
+      {% for ip in nordvpn_additional_route_ips %}
+      route {{ ip }} 255.255.255.255 vpn_gateway
+      {% endfor %}
+    marker: "# {mark} ANSIBLE MANAGED BLOCK additional routes"
     prepend_newline: true
 
 - name: Set no_redirect_gateway
