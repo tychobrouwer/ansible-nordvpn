@@ -35,7 +35,7 @@ Example Playbook
             nordvpn_server: us10036.nordvpn.com.udp1194 }
         - { role: tychobrouwer.nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
             nordvpn_server: us10036.nordvpn.com.udp1194, nordvpn_ignore_redirect_gateway: true,
-            nordvpn_route_nopull: true }
+            nordvpn_route_nopull: false }
 ```
 
 License
