@@ -68,7 +68,7 @@
 - name: Set openvpn password file
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
-    line: auth-user-pass /etc/openvpn/pass
+    line: auth-user-pass pass
     regexp: ^auth-user-pass
     state: present
   notify: Restart openvpn
