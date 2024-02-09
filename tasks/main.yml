@@ -53,6 +53,7 @@
     path: /etc/openvpn/client.conf
     insertafter: ^verify-x509-name.*\n
     block: |
+      
       {% for route in additional_address_ips.results %}
       {% for route_ip in route.json.records.A %}
       route {{ route_ip.address }} 255.255.255.255 vpn_gateway
@@ -62,7 +63,6 @@
       route {{ ip }} 255.255.255.255 vpn_gateway
       {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK additional routes"
-    prepend_newline: true
 
 - name: Set no_redirect_gateway
   ansible.builtin.lineinfile:
