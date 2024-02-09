@@ -63,6 +63,15 @@
       route {{ ip }} 255.255.255.255 vpn_gateway
       {% endfor %}
     marker: "# {mark} ANSIBLE MANAGED BLOCK additional routes"
+  notify: Restart openvpn
+
+- name: Set openvpn password file
+  ansible.builtin.lineinfile:
+    path: /etc/openvpn/client.conf
+    line: auth-user-pass /etc/openvpn/pass
+    regexp: ^auth-user-pass
+    state: present
+  notify: Restart openvpn
 
 - name: Set no_redirect_gateway
   ansible.builtin.lineinfile:
