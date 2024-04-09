@@ -105,4 +105,4 @@
     name: openvpn@client
     state: started
     enabled: true
-  when: not nordvpn_is_test or nordvpn_is_test is undefined
+  when: nordvpn_is_test is undefined or not nordvpn_is_test
