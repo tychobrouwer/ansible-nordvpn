@@ -22,20 +22,24 @@ Example Playbook
 ----------------
 
 ```yaml
-    - hosts: servers
-      vars:
-        nordvpn_additional_route_addresses:
-          - https://networkcalc.com/api/dns/lookup/skyhook.sonarr.tv
-          - https://networkcalc.com/api/dns/lookup/apt.sonarr.tv
-        nordvpn_additional_route_ips:
-          - "1.1.1.1"
+- hosts: servers
+  vars:
+    nordvpn_additional_route_addresses:
+      - https://networkcalc.com/api/dns/lookup/skyhook.sonarr.tv
+      - https://networkcalc.com/api/dns/lookup/apt.sonarr.tv
+    nordvpn_additional_route_ips:
+      - "1.1.1.1"
 
-      roles:
-        - { role: tychobrouwer.nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
-            nordvpn_server: us10036.nordvpn.com.udp1194 }
-        - { role: tychobrouwer.nordvpn, nordvpn_username: service_username, nordvpn_password: service_password,
-            nordvpn_server: us10036.nordvpn.com.udp1194, nordvpn_ignore_redirect_gateway: true,
-            nordvpn_route_nopull: false }
+    nordvpn_username: service_username
+    nordvpn_password: service_password
+    nordvpn_server: us10036.nordvpn.com.udp1194
+
+  roles:
+    - role: tychobrouwer.nordvpn
+
+    - role: tychobrouwer.nordvpn
+      nordvpn_ignore_redirect_gateway: true
+      nordvpn_route_nopull: false
 ```
 
 License
