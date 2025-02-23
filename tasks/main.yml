@@ -6,10 +6,9 @@
     cache_valid_time: 3600
   when: ansible_os_family == 'Debian'
 
-- name: Ensure openvpn is installed
+- name: Ensure OpenVPN is installed
   ansible.builtin.package:
-    name:
-      - openvpn
+    name: openvpn
     state: present
 
 - name: Ensure NordVPN auth file is present on remote
@@ -21,39 +20,29 @@
     group: root
   notify: Restart openvpn
 
-- name: Ensure NordVPN connection file is present on remote
+- name: Download NordVPN connection file
   ansible.builtin.get_url:
     url: https://downloads.nordcdn.com/configs/files/ovpn_legacy/servers/{{ nordvpn_server }}.ovpn
-    dest: /root/client.conf
+    dest: /etc/openvpn/client.conf
     mode: "0644"
     owner: root
     group: root
   register: nordvpn_connection_file
-
-- name: Ensure NordVPN connection file is present on remote
-  ansible.builtin.copy:
-    src: /root/client.conf
-    dest: /etc/openvpn/client.conf
-    remote_src: true
-    force: "{{ nordvpn_connection_file.changed }}"
-    mode: "0644"
-    owner: root
-    group: root
+  failed_when: nordvpn_connection_file.status != 200
   notify: Restart openvpn
 
-- name: Get additional address ips
+- name: Get additional address IPs
   ansible.builtin.uri:
     url: "{{ item }}"
     return_content: true
   register: additional_address_ips
-  with_items: "{{ nordvpn_additional_route_addresses }}"
+  loop: "{{ nordvpn_additional_route_addresses }}"
 
-- name: Set additional routes
+- name: Set additional routes in client.conf
   ansible.builtin.blockinfile:
     path: /etc/openvpn/client.conf
     insertafter: ^verify-x509-name.*\n
     block: |
-      
       {% for route in additional_address_ips.results %}
       {% for route_ip in route.json.records.A %}
       route {{ route_ip.address }} 255.255.255.255 vpn_gateway
@@ -65,7 +54,7 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK additional routes"
   notify: Restart openvpn
 
-- name: Set openvpn password file
+- name: Set OpenVPN password file in client.conf
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: auth-user-pass pass
@@ -73,7 +62,7 @@
     state: present
   notify: Restart openvpn
 
-- name: Set no_redirect_gateway
+- name: Set no_redirect_gateway in client.conf
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: pull-filter ignore redirect-gateway
@@ -82,7 +71,7 @@
     state: "{{ nordvpn_ignore_redirect_gateway and 'present' or 'absent' }}"
   notify: Restart openvpn
 
-- name: Set nordvpn_route_nopull
+- name: Set nordvpn_route_nopull in client.conf
   ansible.builtin.lineinfile:
     path: /etc/openvpn/client.conf
     line: route-nopull
@@ -91,7 +80,7 @@
     state: "{{ nordvpn_route_nopull and 'present' or 'absent' }}"
   notify: Restart openvpn
 
-- name: Ensure openvpn config is present on remote
+- name: Ensure OpenVPN config is present on remote
   ansible.builtin.copy:
     src: openvpn
     dest: /etc/default/openvpn
@@ -100,8 +89,8 @@
     group: root
   notify: Restart openvpn
 
-- name: Ensure openvpn service is enabled and started
-  ansible.builtin.service:
+- name: Ensure OpenVPN service is enabled and started
+  ansible.builtin.systemd:
     name: openvpn@client
     state: started
     enabled: true
